@@ -26,19 +26,9 @@ function distlinear(cidade1, cidade2, plan6) {
     return distance;
 }
 
-// Lista de vistoriadores (substitua com seus dados)
-const vistoriadores = [
-    { nome: "vistoriador1", cidade: "ABADIA DOS DOURADOS - MG" },
-    { nome: "vistoriador2", cidade: "AGUAS VERMELHAS - MG" },
-    { nome: "vistoriador3", cidade: "AIMORES - MG" },
-    { nome: "vistoriador4", cidade: "ALBERTINA - MG" },
-    { nome: "vistoriador5", cidade: "ACAIACA - MG" },
-    // ... mais vistoriadores ...
-];
-
 // Função para buscar o vistoriador mais próximo
 function buscarVistoriadorMaisProximo() {
-    const cidadeSelecionada = document.getElementById("cidade").value;
+    const cidadeDigitada = document.getElementById("cidade").value;
 
     // Substituir o array abaixo com os dados de cidades
     const plan6 = [
@@ -63,11 +53,19 @@ function buscarVistoriadorMaisProximo() {
         // ... mais cidades ...
     ];
 
+    // Substituir o array abaixo com os dados de vistoriadores
+    const vistoriadores = [
+        { nome: "vistoriador1", cidade: "ABADIA DOS DOURADOS - MG" },
+        { nome: "vistoriador2", cidade: "AGUAS VERMELHAS - MG" },
+        { nome: "vistoriador3", cidade: "AIMORES - MG" },
+        // ... mais vistoriadores ...
+    ];
+
     let menorDistancia = Infinity;
     let vistoriadorSelecionado = "";
 
     for (const vistoriador of vistoriadores) {
-        const distancia = distlinear(cidadeSelecionada, vistoriador.cidade, plan6);
+        const distancia = distlinear(cidadeDigitada, vistoriador.cidade, plan6);
         if (distancia < menorDistancia) {
             menorDistancia = distancia;
             vistoriadorSelecionado = vistoriador.nome;
@@ -75,13 +73,14 @@ function buscarVistoriadorMaisProximo() {
     }
 
     if (vistoriadorSelecionado) {
+        const cidadeVistoriador = vistoriadores.find(v => v.nome === vistoriadorSelecionado).cidade;
         document.getElementById("empresa").textContent = vistoriadorSelecionado;
-        document.getElementById("cidade-sede").textContent = cidadeSelecionada;
+        document.getElementById("cidade-sede").textContent = cidadeVistoriador;
         document.getElementById("valor-distancia").textContent = menorDistancia.toFixed(2) + " km";
         const valorTotal = calcularValorTotal(menorDistancia);
         document.getElementById("valor-total").textContent = valorTotal.toFixed(2);
     } else {
-        alert("Nenhum vistoriador encontrado para a cidade selecionada.");
+        alert("Nenhum vistoriador encontrado para a cidade digitada.");
     }
 }
 
