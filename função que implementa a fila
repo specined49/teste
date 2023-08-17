@@ -1,0 +1,36 @@
+// ...
+
+// Substituir o array abaixo com os dados de vistoriadores
+const vistoriadores = [
+    { nome: "vistoriador1", cidade: "ABADIA DOS DOURADOS - MG" },
+    { nome: "vistoriador2", cidade: "AGUAS VERMELHAS - MG" },
+    { nome: "vistoriador3", cidade: "AIMORES - MG" },
+    // ... mais vistoriadores ...
+];
+
+// Verifica se há dados da fila no Armazenamento Local
+let vistoriadoresFila = JSON.parse(localStorage.getItem("vistoriadoresFila")) || vistoriadores.slice();
+
+function buscarVistoriadorMaisProximo() {
+    // Restante do código permanece igual
+
+    if (vistoriadorSelecionado) {
+        // Movendo o vistoriador selecionado para o final da fila
+        const vistoriadorIndex = vistoriadoresFila.findIndex(vistoriador => vistoriador.nome === vistoriadorSelecionado);
+        if (vistoriadorIndex !== -1) {
+            const vistoriadorMovido = vistoriadoresFila.splice(vistoriadorIndex, 1)[0];
+            vistoriadoresFila.push(vistoriadorMovido);
+        }
+
+        // Salva a fila atualizada no Armazenamento Local
+        localStorage.setItem("vistoriadoresFila", JSON.stringify(vistoriadoresFila));
+
+        // Atualiza o array de vistoriadores disponíveis para seleção
+        const vistoriadoresDisponiveis = vistoriadoresFila.map(vistoriador => vistoriador.nome).join(', ');
+        document.getElementById("vistoriadores-disponiveis").textContent = vistoriadoresDisponiveis;
+
+        // Restante do código permanece igual
+    }
+}
+
+// ...
