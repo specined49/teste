@@ -1,28 +1,6 @@
 // Função para calcular a distância entre duas cidades
-function distlinear(cidade1, cidade2, plan6) {
-    let lat1 = 0;
-    let lat2 = 0;
-    let long1 = 0;
-    let long2 = 0;
-
-    for (let linha = 0; linha < plan6.length; linha++) {
-        if (plan6[linha][0].toLowerCase() === cidade1.toLowerCase()) {
-            lat1 = plan6[linha][2];
-            long1 = plan6[linha][3];
-        }
-
-        if (plan6[linha][0].toLowerCase() === cidade2.toLowerCase()) {
-            lat2 = plan6[linha][2];
-            long2 = plan6[linha][3];
-        }
-
-        if (lat1 !== 0 && lat2 !== 0) {
-            break;
-        }
-    }
-
-    const distance = Math.sqrt((Math.pow(lat1 - lat2, 2)) + (Math.pow(long1 - long2, 2))) * 111.12;
-
+function distlinear(lat1, long1, lat2, long2) {
+    const distance = Math.sqrt(Math.pow(lat1 - lat2, 2) + Math.pow(long1 - long2, 2)) * 111.12;
     return distance;
 }
 
@@ -64,23 +42,39 @@ function buscarVistoriadorMaisProximo() {
     let menorDistancia = Infinity;
     let vistoriadorSelecionado = "";
 
-    for (const vistoriador of vistoriadores) {
-        const distancia = distlinear(cidadeDigitada, vistoriador.cidade, plan6);
-        if (distancia < menorDistancia) {
-            menorDistancia = distancia;
-            vistoriadorSelecionado = vistoriador.nome;
-        }
-    }
+    const cidadeSelecionada = plan6.find(cidade => cidade[0].toLowerCase() === cidadeDigitada.toLowerCase());
 
-    if (vistoriadorSelecionado) {
-        const cidadeVistoriador = vistoriadores.find(v => v.nome === vistoriadorSelecionado).cidade;
-        document.getElementById("empresa").textContent = vistoriadorSelecionado;
-        document.getElementById("cidade-sede").textContent = cidadeVistoriador;
-        document.getElementById("valor-distancia").textContent = menorDistancia.toFixed(2) + " km";
-        const valorTotal = calcularValorTotal(menorDistancia);
-        document.getElementById("valor-total").textContent = valorTotal.toFixed(2);
+    if (cidadeSelecionada) {
+        const latCidadeSelecionada = cidadeSelecionada[2];
+        const longCidadeSelecionada = cidadeSelecionada[3];
+
+        for (const vistoriador of vistoriadores) {
+            const cidadeVistoriador = plan6.find(cidade => cidade[0].toLowerCase() === vistoriador.cidade.toLowerCase());
+            
+            if (cidadeVistoriador) {
+                const latCidadeVistoriador = cidadeVistoriador[2];
+                const longCidadeVistoriador = cidadeVistoriador[3];
+
+                const distancia = distlinear(latCidadeSelecionada, longCidadeSelecionada, latCidadeVistoriador, longCidadeVistoriador);
+
+                if (distancia < menorDistancia) {
+                    menorDistancia = distancia;
+                    vistoriadorSelecionado = vistoriador.nome;
+                }
+            }
+        }
+
+        if (vistoriadorSelecionado) {
+            document.getElementById("empresa").textContent = vistoriadorSelecionado;
+            document.getElementById("cidade-sede").textContent = cidadeSelecionada[0];
+            document.getElementById("valor-distancia").textContent = menorDistancia.toFixed(2) + " km";
+            const valorTotal = calcularValorTotal(menorDistancia);
+            document.getElementById("valor-total").textContent = valorTotal.toFixed(2);
+        } else {
+            alert("Nenhum vistoriador encontrado para a cidade digitada.");
+        }
     } else {
-        alert("Nenhum vistoriador encontrado para a cidade digitada.");
+        alert("Cidade não encontrada.");
     }
 }
 
