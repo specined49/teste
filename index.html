@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário de Vistoria</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.3/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.3/awesomplete.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Formulário de Vistoria</h1>
+        <form id="vistoria-form">
+            <div class="form-group">
+                <label for="cliente">Cliente:</label>
+                <input type="text" id="cliente" name="cliente" placeholder="Nome do Cliente" required>
+            </div>
+            <div class="form-group">
+                <label for="tipo-laudo">Tipo de Laudo:</label>
+                <select id="tipo-laudo" name="tipo-laudo">
+                    <option value="tipo1">Tipo 1</option>
+                    <option value="tipo2">Tipo 2</option>
+                    <option value="tipo3">Tipo 3</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="cidade">Cidade:</label>
+                <input type="text" id="cidade" name="cidade" placeholder="Digite o nome da cidade" required>
+            </div>
+            <div class="form-group">
+                <label for="total">Total:</label>
+                <input type="text" id="total" name="total" readonly>
+            </div>
+            <div class="form-group">
+                <label for="deslocamento">Deslocamento (km):</label>
+                <input type="number" id="deslocamento" name="deslocamento" step="0.01" placeholder="Informe a distância" required>
+            </div>
+            <div class="form-group">
+                <label for="total">Total:</label>
+                <input type="text" id="total" name="total" readonly>
+            </div>
+            <button type="button" id="select-vistoriador">Selecionar Vistoriador</button>
+            <button id="salvar-pdf">Salvar como PDF</button>
+        </form>
+        <div class="resultado">
+            <h2>Resultado:</h2>
+            <p>Empresa Credenciada: <span id="empresa"></span></p>
+            <p>Cidade Sede: <span id="cidade-sede"></span></p>
+            <p>Valor da Distância: <span id="valor-distancia"></span></p>
+            <p>Valor Total: <span id="valor-total"></span></p>
+            <p>Aceite: <span id="aceite"></span></p>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
