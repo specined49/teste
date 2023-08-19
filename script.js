@@ -30,8 +30,6 @@ function buscarVistoriadorMaisProximo() {
         ["ALMENARA - MG", "MG", -16.1005, -40.7101]
         // ... mais cidades ...
     ];
-
-    // Substituir o array abaixo com os dados de vistoriadores
     const vistoriadores = [
         { nome: "vistoriador1", cidade: "ABADIA DOS DOURADOS - MG" },
         { nome: "vistoriador2", cidade: "AGUAS VERMELHAS - MG" },
@@ -44,46 +42,145 @@ function buscarVistoriadorMaisProximo() {
 
     const cidadeSelecionada = plan6.find(cidade => cidade[0].toLowerCase() === cidadeDigitada.toLowerCase());
 
-    if (cidadeSelecionada) {
-        const latCidadeSelecionada = cidadeSelecionada[2];
-        const longCidadeSelecionada = cidadeSelecionada[3];
+    if (!cidadeSelecionada) {
+        alert("Cidade não encontrada.");
+        return;
+    }
 
-        for (const vistoriador of vistoriadores) {
-            const cidadeVistoriador = plan6.find(cidade => cidade[0].toLowerCase() === vistoriador.cidade.toLowerCase());
-            
-            if (cidadeVistoriador) {
-                const latCidadeVistoriador = cidadeVistoriador[2];
-                const longCidadeVistoriador = cidadeVistoriador[3];
+    let vistoriadoresCache = JSON.parse(localStorage.getItem("vistoriadoresCache")) || [];
 
-                const distancia = distlinear(latCidadeSelecionada, longCidadeSelecionada, latCidadeVistoriador, longCidadeVistoriador);
+    if (vistoriadoresCache.length === 0) {
+        vistoriadoresCache = vistoriadores.map(vistoriador => ({ ...vistoriador, status: 1 }));
+        localStorage.setItem("vistoriadoresCache", JSON.stringify(vistoriadoresCache));
+    }
 
-                if (distancia < menorDistancia) {
-                    menorDistancia = distancia;
-                    vistoriadorSelecionado = vistoriador.nome;
-                }
+    let vistoriadoresFila = vistoriadoresCache.filter(vistoriador => vistoriador.status === 1);
+
+    if (vistoriadoresFila.length === 0) {
+        vistoriadoresFila = [...vistoriadoresCache];
+        vistoriadoresCache.forEach(vistoriador => vistoriador.status = 1);
+        localStorage.setItem("vistoriadoresCache", JSON.stringify(vistoriadoresCache));
+    }
+
+    for (const vistoriador of vistoriadoresFila) {
+        const cidadeVistoriador = plan6.find(cidade => cidade[0].toLowerCase() === vistoriador.cidade.toLowerCase());
+
+        if (cidadeVistoriador) {
+            const latCidadeVistoriador = cidadeVistoriador[2];
+            const longCidadeVistoriador = cidadeVistoriador[3];
+
+            const distancia = distlinear(cidadeSelecionada[2], cidadeSelecionada[3], latCidadeVistoriador, longCidadeVistoriador);
+
+            if (distancia < menorDistancia) {
+                menorDistancia = distancia;
+                vistoriadorSelecionado = vistoriador.nome;
             }
         }
+    }
 
-        if (vistoriadorSelecionado) {
-            document.getElementById("empresa").textContent = vistoriadorSelecionado;
-            document.getElementById("cidade-sede").textContent = cidadeSelecionada[0];
-            document.getElementById("valor-distancia").textContent = menorDistancia.toFixed(2) + " km";
-            const valorTotal = calcularValorTotal(menorDistancia);
-            document.getElementById("valor-total").textContent = valorTotal.toFixed(2);
-        } else {
-            alert("Nenhum vistoriador encontrado para a cidade digitada.");
+    if (vistoriadorSelecionado) {
+        document.getElementById("empresa").textContent = vistoriadorSelecionado;
+        document.getElementById("cidade-sede").textContent = cidadeSelecionada[0];
+        document.getElementById("valor-distancia").textContent = menorDistancia.toFixed(2) + " km";
+        const valorTotal = calcularValorTotal(menorDistancia);
+        document.getElementById("valor-total").textContent = valorTotal.toFixed(2);
+
+        // Atualizar o status do vistoriador selecionado
+        const index = vistoriadoresCache.findIndex(vistoriador => vistoriador.nome === vistoriadorSelecionado);
+        if (index !== -1) {
+            vistoriadoresCache[index].status = 0;
+            localStorage.setItem("vistoriadoresCache", JSON.stringify(vistoriadoresCache));
         }
     } else {
-        alert("Cidade não encontrada.");
+        alert("Nenhum vistoriador encontrado para a cidade digitada.");
     }
 }
 
 // Função para calcular o valor total
 function calcularValorTotal(distancia) {
     // Substitua o valor do quilômetro pelo valor correto
-    const valorPorKm = 0.5; // Exemplo de valor por quilômetro
+    const valorPorKm = 1.47; // Exemplo de valor por quilômetro
+    return (distancia * 2)*valorPorKm;
+}
+
+document.getElementById("select-vistoriador").addEventListener("click", buscarVistoriadorMaisProximo);
+
+// ...
+
+// Função para calcular o valor total
+function calcularValorTotal(distancia, tipoLaudo) {
+    let valorPorKm = 2.94;
+
+    if (tipoLaudo === "tipo1") {
+        valorPorKm = 886.55;
+    } else if (tipoLaudo === "tipo2") {
+        valorPorKm = 394.69;
+    } else if (tipoLaudo === "tipo3") {
+        valorPorKm = 1000.00;
+    }
 
     return distancia * valorPorKm;
 }
 
-document.getElementById("select-vistoriador").addEventListener("click", buscarVistoriadorMaisProximo);
+// Função para calcular o valor total do laudo considerando a distância e o tipo
+function calcularValorTotalLaudo(distancia, tipoLaudo) {
+    const valorPorKm = calcularValorTotal(distancia, tipoLaudo);
+    const valorTotal = valorPorKm + (distancia * 2 * 1.47); // Fórmula para calcular o valor total
+
+    return valorTotal;
+    totalInput.value = valorTotal.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+// Função para atualizar o valor total no resultado
+function atualizarValorTotalLaudo() {
+    const distancia = parseFloat(document.getElementById("valor-distancia").textContent);
+    const tipoLaudo = document.getElementById("tipo-laudo").value;
+    
+    const valorTotalLaudo = calcularValorTotalLaudo(distancia, tipoLaudo);
+    document.getElementById("valor-total").textContent = `R$ ${valorTotalLaudo.toFixed(2)}`;
+}
+
+// Adicione um ouvinte de eventos para o input de distância
+document.getElementById("valor-distancia").addEventListener("input", atualizarValorTotalLaudo);
+
+// ...
+
+
+// document.addEventListener("DOMContentLoaded", function() {
+//     const tipoLaudoSelect = document.getElementById("tipo-laudo");
+//     const totalInput = document.getElementById("total");
+//     const distanciaSpan = document.getElementById("valor-distancia");
+//     const aceiteSelect = document.getElementById("aceite");
+
+//     function atualizarValorDoLaudo() {
+//         const selectedValue = tipoLaudoSelect.value;
+//         let valor;
+
+//         if (selectedValue === "tipo1") {
+//             valor = 886.55;
+//         } else if (selectedValue === "tipo2") {
+//             valor = 394.69;
+//         } else if (selectedValue === "tipo3") {
+//             valor = 1000.00;
+//         } else {
+//             valor = 0; // Valor padrão ou tratamento de erro
+//         }
+
+//         const distancia = parseFloat(distanciaSpan.textContent);
+//         const valorTotal = valor + (distancia * 2 * 1.47);
+//         totalInput.value = valorTotal.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+//     }
+
+//     // Definir valor padrão ao carregar a página
+//     tipoLaudoSelect.value = "tipo1";
+//     atualizarValorDoLaudo();
+
+//     // Evento de escuta para o select de tipo de laudo
+//     tipoLaudoSelect.addEventListener("change", atualizarValorDoLaudo);
+
+//     // Evento de escuta para o select de aceite
+//     aceiteSelect.addEventListener("change", atualizarValorDoLaudo);
+// });
+
+// // ... (resto do código)
+
