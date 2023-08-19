@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulário de Vistoria</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.3/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.3/awesomplete.min.js"></script>
 </head>
 <body>
@@ -48,23 +47,49 @@
                 </select>
             </div>
             <div class="form-group">
-                <label for="total">Total:</label>
+                <label for="total">Valor do laudo:</label>
                 <input type="text" id="total" name="total" readonly>
             </div>
-            <div class="form-group">
-                <label for="total">Total:</label>
-                <input type="text" id="total" name="total" readonly>
-            </div>
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+    const tipoLaudoSelect = document.getElementById("tipo-laudo");
+    const totalInput = document.getElementById("total");
+
+    function atualizarValorDoLaudo() {
+        const selectedValue = tipoLaudoSelect.value;
+        let valor;
+
+        if (selectedValue === "tipo1") {
+            valor = 886.55;
+        } else if (selectedValue === "tipo2") {
+            valor = 394.69;
+        } else if (selectedValue === "tipo3") {
+            valor = 1000.00;
+        } else {
+            valor = 0; // Valor padrão ou tratamento de erro
+        }
+
+        totalInput.value = valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    }
+
+    // Definir valor padrão ao carregar a página
+    tipoLaudoSelect.value = "tipo1";
+    atualizarValorDoLaudo();
+
+    // Evento de escuta para o select de tipo de laudo
+    tipoLaudoSelect.addEventListener("change", atualizarValorDoLaudo);
+    });
+            </script> 
             <button type="button" id="select-vistoriador">Selecionar Vistoriador</button>
             <button id="salvar-pdf">Salvar como PDF</button>
         </form>
         <div class="resultado">
             <h2>Resultado:</h2>
             <p>Empresa Credenciada: <span id="empresa"></span></p>
-            <p>Cidade Sede: <span id="cidade-sede"></span></p>
-            <p>Valor da Distância: <span id="valor-distancia"></span></p>
+            <p>Cidade a ser vistoriada: <span id="cidade-sede"></span></p>
+            <p>Distância em KM: <span id="valor-distancia"></span></p>
             <p>Valor Total: <span id="valor-total"></span></p>
-            <p>Aceite: <span id="aceite"></span></p>
+           <p>Aceite:<select id="aceite"><option value="sim">Sim</option><option value="nao">Não</option></select></p>
         </div>
     </div>
     <script src="script.js"></script>
